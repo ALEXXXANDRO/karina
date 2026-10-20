@@ -39,6 +39,8 @@ export const portfolioEffects = {
     durationMs: 800,
     offset: 36,
     stretch: 1.08,
+    enterThreshold: 0.25,
+    exitMargin: 80,
   },
   gallery: {
     enabled: true,
@@ -47,5 +49,16 @@ export const portfolioEffects = {
     perspective: 1200,
     followMs: 90,
     returnMs: 180,
+  },
+  parallax: {
+    enabled: true,
+    maxOffset: 45,
+    minWidth: 769,
+    projects: {
+      // Limit overscan on narrower cards to preserve the tip, hat and S7 logo.
+      'rat-dot': { enabled: true, maxOffset: 20, maxOffsetRatio: 0.025 },
+      wolfs: { enabled: true, maxOffset: 45, maxOffsetRatio: 0.046 },
+      'mascot-s7': { enabled: true, maxOffset: 45, maxOffsetRatio: 0.065 },
+    },
   },
 } as const;

@@ -1,5 +1,6 @@
 import type { ProjectIntroData } from '../../types/project';
 import { useProjectTitleReveal } from '../../effects/ProjectTitles/useProjectTitleReveal';
+import { useProjectParallax } from '../../effects/ProjectParallax/useProjectParallax';
 import './ProjectIntro.css';
 
 interface ProjectIntroProps {
@@ -9,6 +10,7 @@ interface ProjectIntroProps {
 function ProjectIntro({ project }: ProjectIntroProps) {
   const headingId = `${project.id}-title`;
   const titleRef = useProjectTitleReveal();
+  const illustrationRef = useProjectParallax(project.id, project.illustration.status === 'ready');
 
   return (
     <section className="project-intro" id={project.id} aria-labelledby={headingId}>
@@ -39,7 +41,7 @@ function ProjectIntro({ project }: ProjectIntroProps) {
         </div>
 
         {project.illustration.status === 'ready' ? (
-          <figure className="project-intro__illustration">
+          <figure className="project-intro__illustration" ref={illustrationRef}>
             <img
               src={`${import.meta.env.BASE_URL}${project.illustration.src}`}
               alt={project.illustration.alt}
