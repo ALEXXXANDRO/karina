@@ -3,7 +3,6 @@
   --hero-motion-intensity: 1;
   --hero-motion-duration-scale: 1;
   --hero-jump-height: 40px;
-  --hero-tumble-duration: 800ms;
 
   display: grid;
   min-height: 100svh;
@@ -47,6 +46,7 @@
 
 .hero__float,
 .hero__reaction,
+.hero__party,
 .hero__bean-button {
   width: 100%;
   height: 100%;
@@ -89,50 +89,110 @@
   pointer-events: none;
 }
 
-.hero__object[data-spinning='true'] .hero__float {
+/* Position → float → pointer reaction → individual button → party artwork. */
+.hero__party {
+  display: block;
+}
+
+.hero__object[data-spinning='true'] .hero__float,
+.hero__decoration[data-party='true'] .hero__float,
+.hero__decoration[data-suspended='true'] .hero__float {
   animation-play-state: paused;
 }
 
 .hero__object[data-spinning='true'] .hero__bean-button {
-  animation: hero-bean-tumble var(--hero-tumble-duration) both;
+  animation-duration: var(--bean-action-duration, 800ms);
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
 }
 
-@keyframes hero-bean-tumble {
-  0% {
-    transform: translateY(0) rotate(0deg) scale(1);
-    animation-timing-function: ease-out;
-  }
+.hero__object[data-reaction='jelly-bounce'] .hero__bean-button {
+  animation-name: hero-bean-jelly-bounce;
+}
 
-  12% {
-    transform: translateY(4px) rotate(-5deg) scale(1.06, 0.9);
-    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
-  }
+.hero__object[data-reaction='crazy-flip'] .hero__bean-button {
+  animation-name: hero-bean-crazy-flip;
+}
 
-  38% {
-    transform: translateY(calc(var(--hero-jump-height) * -1))
-      rotate(-135deg) scale(0.97, 1.05);
-    animation-timing-function: ease-in;
-  }
+.hero__object[data-reaction='wiggle'] .hero__bean-button {
+  animation-name: hero-bean-wiggle;
+}
 
-  68% {
-    transform: translateY(calc(var(--hero-jump-height) * -0.55))
-      rotate(-300deg) scale(1.02, 0.98);
-    animation-timing-function: ease-in;
-  }
+.hero__object[data-reaction='double-hop'] .hero__bean-button {
+  animation-name: hero-bean-double-hop;
+}
 
-  82% {
-    transform: translateY(0) rotate(-360deg) scale(1.12, 0.88);
-    animation-timing-function: ease-out;
-  }
+@keyframes hero-bean-jelly-bounce {
+  0%, 100% { transform: none; }
+  15%, 64% { transform: scale(var(--hero-squash-x), var(--hero-squash-y)); }
+  30% { transform: translateY(calc(var(--hero-jelly-height) * -0.7)) scale(var(--hero-stretch-x), var(--hero-stretch-y)); }
+  42% { transform: translateY(calc(var(--hero-jelly-height) * -1)); }
+  79% { transform: translateY(-4px) scale(0.96, 1.04); }
+  90% { transform: scale(1.025, 0.975); }
+}
 
-  92% {
-    transform: translateY(-3px) rotate(-360deg) scale(0.97, 1.04);
-    animation-timing-function: ease-in-out;
-  }
+@keyframes hero-bean-crazy-flip {
+  0% { transform: none; }
+  12% { transform: translateY(3px) rotate(-5deg) scale(var(--hero-squash-x), var(--hero-squash-y)); }
+  38% { transform: translateY(calc(var(--hero-jump-height) * -1)) rotate(-135deg) scale(var(--hero-stretch-x), var(--hero-stretch-y)); }
+  68% { transform: translateY(calc(var(--hero-jump-height) * -0.55)) rotate(-300deg); }
+  82% { transform: rotate(-360deg) scale(var(--hero-squash-x), var(--hero-squash-y)); }
+  92% { transform: translateY(-3px) rotate(-360deg) scale(0.96, 1.04); }
+  100% { transform: rotate(-360deg); }
+}
 
-  100% {
-    transform: translateY(0) rotate(-360deg) scale(1);
-  }
+@keyframes hero-bean-wiggle {
+  0%, 100% { transform: none; }
+  15% { transform: rotate(calc(var(--hero-wiggle-angle) * -1)) scale(1.06, 0.943); }
+  32% { transform: rotate(var(--hero-wiggle-angle)) scale(0.94, 1.064); }
+  49% { transform: rotate(calc(var(--hero-wiggle-angle) * -0.65)) scale(1.04, 0.962); }
+  65% { transform: rotate(calc(var(--hero-wiggle-angle) * 0.4)) scale(0.97, 1.031); }
+  82% { transform: rotate(calc(var(--hero-wiggle-angle) * -0.18)) scale(1.015, 0.985); }
+}
+
+@keyframes hero-bean-double-hop {
+  0%, 100% { transform: none; }
+  10%, 45% { transform: scale(var(--hero-squash-x), var(--hero-squash-y)); }
+  25% { transform: translateY(calc(var(--hero-hop-height) * -1)) scale(var(--hero-stretch-x), var(--hero-stretch-y)); }
+  60% { transform: translateY(calc(var(--hero-hop-height) * -0.5)) scale(0.95, 1.053); }
+  76% { transform: scale(1.08, 0.926); }
+  88% { transform: translateY(-2px) scale(0.98, 1.02); }
+}
+
+.hero__decoration[data-party='true'] .hero__party {
+  animation: hero-bean-party calc(var(--hero-party-duration) - var(--bean-party-delay))
+    ease-in-out var(--bean-party-delay) both;
+}
+
+@keyframes hero-bean-party {
+  0%, 100% { transform: none; }
+  8%, 34%, 60%, 85% { transform: scale(var(--hero-squash-x), var(--hero-squash-y)); }
+  20% { transform: translateY(calc(var(--hero-party-height) * -1)) rotate(calc(360deg * var(--bean-party-direction))) scale(var(--hero-stretch-x), var(--hero-stretch-y)); }
+  46% { transform: translateY(calc(var(--hero-party-height) * -0.75)) rotate(calc(-14deg * var(--bean-party-direction))) scale(0.94, 1.064); }
+  72% { transform: translateY(calc(var(--hero-party-height) * -1)) rotate(calc(-360deg * var(--bean-party-direction))) scale(var(--hero-stretch-x), var(--hero-stretch-y)); }
+  94% { transform: translateY(-3px) rotate(calc(5deg * var(--bean-party-direction))) scale(0.98, 1.02); }
+}
+
+.hero__party-label {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: calc(50% + clamp(5.5rem, 9cqw, 11rem));
+  width: max-content;
+  max-width: 90%;
+  font-size: clamp(0.875rem, 1.15cqw, 1.375rem);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.14em;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+  transform: translateX(-50%);
+  animation: hero-party-label var(--hero-party-duration) ease both;
+}
+
+@keyframes hero-party-label {
+  0%, 100% { opacity: 0; transform: translate(-50%, 8px) scale(0.95); }
+  12%, 86% { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
 
 .hero__object:nth-child(1) {
@@ -253,10 +313,14 @@
   .hero__float,
   .hero__reaction,
   .hero__object .hero__bean-button,
-  .hero__object[data-spinning='true'] .hero__bean-button {
+  .hero__object[data-spinning='true'] .hero__bean-button,
+  .hero__object .hero__party,
+  .hero__decoration[data-party='true'] .hero__party {
     animation: none;
     transform: none;
   }
+
+  .hero__party-label { display: none; }
 }
 
 .hero__copy {

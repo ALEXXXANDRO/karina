@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { BeanPartyCounter, heroMotion } from './heroMotion';
 
 export const beanInteraction = {
   radius: 150,
@@ -11,7 +12,10 @@ export const beanInteraction = {
 export function useBeanInteraction() {
   const containerRef = useRef<HTMLDivElement>(null);
   const wakeRef = useRef<() => void>(() => {});
+  const clickRef = useRef<(id: string) => boolean>(() => false);
+  const [isParty, setIsParty] = useState(false);
   const requestUpdate = useCallback(() => wakeRef.current(), []);
+  const registerClick = useCallback((id: string) => clickRef.current(id), []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -24,6 +28,41 @@ export function useBeanInteraction() {
     let frame = 0;
     let previousTime = 0;
     let pointer = { x: 0, y: 0, active: false };
+    let partyActive = false;
+    let partyTimer = 0;
+    const counter = new BeanPartyCounter(heroMotion.party.requiredBeans, heroMotion.party.windowMs);
+
+    function clearIndividualActions() {
+      beans.forEach(({ element }) => {
+        delete element.dataset.spinning;
+        delete element.dataset.reaction;
+        element.querySelector<HTMLButtonElement>('button')?.style.removeProperty('--bean-action-duration');
+      });
+    }
+
+    function finishParty() {
+      window.clearTimeout(partyTimer);
+      partyTimer = 0;
+      partyActive = false;
+      delete container?.dataset.party;
+      counter.clear();
+      setIsParty(false);
+      schedule();
+    }
+
+    clickRef.current = (id) => {
+      if (partyActive || reducedMotion.matches || document.hidden) return false;
+      if (heroMotion.party.enabled && counter.record(id, performance.now())) {
+        partyActive = true;
+        container.dataset.party = 'true';
+        clearIndividualActions();
+        setIsParty(true);
+        schedule();
+        partyTimer = window.setTimeout(finishParty, heroMotion.party.durationMs);
+        return false;
+      }
+      return true;
+    };
 
     function update(time: number) {
       frame = 0;
@@ -39,7 +78,7 @@ export function useBeanInteraction() {
         let targetX = 0;
         let targetY = 0;
         let targetTilt = 0;
-        if (enabled && bean.element.dataset.spinning !== 'true' && rect) {
+        if (enabled && !partyActive && bean.element.dataset.spinning !== 'true' && rect) {
           const dx = rect.x + rect.width / 2 - pointer.x;
           const dy = rect.y + rect.height / 2 - pointer.y;
           const distance = Math.hypot(dx, dy);
@@ -75,7 +114,7 @@ export function useBeanInteraction() {
     }
 
     function schedule() {
-      if (!frame && !reducedMotion.matches) frame = requestAnimationFrame(update);
+      if (!frame && !reducedMotion.matches && !document.hidden) frame = requestAnimationFrame(update);
     }
 
     function resetPointer() {
@@ -89,6 +128,11 @@ export function useBeanInteraction() {
     }
 
     function resetPreferences() {
+      if (reducedMotion.matches || document.hidden) {
+        finishParty();
+        clearIndividualActions();
+        counter.clear();
+      }
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
       previousTime = 0;
@@ -102,6 +146,18 @@ export function useBeanInteraction() {
       });
     }
 
+    function visibilityChanged() {
+      if (document.hidden) container?.setAttribute('data-suspended', 'true');
+      else container?.removeAttribute('data-suspended');
+      resetPreferences();
+    }
+
+    function animationCancelled() {
+      // CSS may stop animations before the media-query change is delivered.
+      // Clear the shared action state at that point as well.
+      if (reducedMotion.matches) resetPreferences();
+    }
+
     wakeRef.current = schedule;
     window.addEventListener('pointermove', movePointer, { passive: true });
     document.documentElement.addEventListener('pointerleave', resetPointer);
@@ -110,9 +166,17 @@ export function useBeanInteraction() {
     window.addEventListener('resize', resetPointer);
     reducedMotion.addEventListener('change', resetPreferences);
     finePointer.addEventListener('change', resetPreferences);
+    document.addEventListener('visibilitychange', visibilityChanged);
+    container.addEventListener('animationcancel', animationCancelled);
 
     return () => {
       wakeRef.current = () => {};
+      clickRef.current = () => false;
+      window.clearTimeout(partyTimer);
+      counter.clear();
+      delete container.dataset.party;
+      delete container.dataset.suspended;
+      clearIndividualActions();
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener('pointermove', movePointer);
       document.documentElement.removeEventListener('pointerleave', resetPointer);
@@ -121,8 +185,10 @@ export function useBeanInteraction() {
       window.removeEventListener('resize', resetPointer);
       reducedMotion.removeEventListener('change', resetPreferences);
       finePointer.removeEventListener('change', resetPreferences);
+      document.removeEventListener('visibilitychange', visibilityChanged);
+      container.removeEventListener('animationcancel', animationCancelled);
     };
   }, []);
 
-  return { containerRef, requestUpdate };
+  return { containerRef, requestUpdate, registerClick, isParty };
 }
