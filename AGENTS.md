@@ -6,10 +6,11 @@ This single-page graphic designer portfolio uses React, strict TypeScript,
 Vite, and plain CSS. `index.html` is the Vite entry point; `src/main.tsx`
 mounts `src/App.tsx` and imports local Inter fonts. Shared design variables
 live in `src/styles/tokens.css`; global styles live in `src/styles/global.css`.
-Build output belongs in `dist/`. Hero and the RAT DOT intro are implemented;
-ABOUT, galleries, and subsequent project sections are pending. Shared project
-intro layout lives in `src/components/ProjectIntro/`, with typed data in
-`src/data/` and `src/types/`.
+Build output belongs in `dist/`. Hero, the RAT DOT intro, and its gallery
+with local images are implemented; ABOUT and subsequent project sections
+are pending. Shared layouts live in `src/components/ProjectIntro/`
+and `src/components/ProjectGallery/`, with typed data in `src/data/`
+and `src/types/`.
 
 ## Figma Fidelity and Content
 

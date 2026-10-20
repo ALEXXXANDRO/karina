@@ -5,7 +5,8 @@
 размытия, шесть прозрачных PNG и адаптация для планшетов и телефонов.
 Сразу после Hero подключён первый экран RAT DOT через общий `ProjectIntro`.
 Иллюстрация RAT DOT подключена из `public/assets/RatDot/rat-dot-cover.png`.
-ABOUT, галереи и следующие проекты пока не реализованы.
+После него добавлена галерея RAT DOT с девятью локальными изображениями
+из `public/assets/RatDot/gallery/`. ABOUT и следующие проекты пока не реализованы.
 
 ## Требования и запуск
 
@@ -37,6 +38,8 @@ npm run preview
 - `src/App.tsx` — корневой компонент приложения.
 - `src/sections/Hero/` — компонент обложки, CSS и конфигурация всех 13 объектов.
 - `src/components/ProjectIntro/` — общий вводный экран проекта.
+- `src/components/ProjectGallery/` — общая галерея с вложенными Grid-сетками.
+- `src/data/ratDotGallery.ts`, `src/types/gallery.ts` — раскладка RAT DOT и типы галерей.
 - `src/data/ratDot.ts`, `src/types/project.ts` — данные RAT DOT и типы проектов.
 - `src/styles/tokens.css` — цвета, типографика и размеры из макета.
 - `src/styles/global.css` — базовые стили и настройки прокрутки.
@@ -49,5 +52,7 @@ Inter поставляется через `@fontsource-variable/inter`: Vite в�
 [docs/hero-assets.md](docs/hero-assets.md).
 Размеры, недостающие материалы и допущения RAT DOT описаны в
 [docs/project-intro.md](docs/project-intro.md).
+Структура галереи и список необходимых экспортов:
+[docs/project-gallery.md](docs/project-gallery.md).
 
 Правила разработки находятся в [AGENTS.md](AGENTS.md).
