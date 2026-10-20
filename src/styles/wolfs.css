@@ -1,0 +1,10 @@
+/* WOLFS-specific adaptation: allow space for the longer service name. */
+@media (max-width: 600px) {
+  #wolfs .project-intro__facts {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.7fr);
+  }
+
+  #wolfs .project-intro__fact dd {
+    overflow-wrap: anywhere;
+  }
+}

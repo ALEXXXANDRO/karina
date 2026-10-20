@@ -59,4 +59,8 @@ export interface ProjectGalleryData {
   readonly variant: string;
   readonly grid: GalleryGrid;
   readonly children: readonly GalleryNode[];
+  readonly footer?: {
+    readonly author: string;
+    readonly project: string;
+  };
 }

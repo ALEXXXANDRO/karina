@@ -30,6 +30,26 @@
   padding: 1.09375cqw 1.041666667cqw 3.125cqw 0.989583333cqw;
 }
 
+.project-gallery__layout--with-footer {
+  grid-template-rows: minmax(0, 1fr) auto;
+  row-gap: 1.145833333cqw;
+  padding-bottom: 1.302083333cqw;
+}
+
+.project-gallery .project-gallery__footer {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 0.677083333cqw;
+  padding-left: 2.34375cqw;
+  font-size: 0.602239583cqw;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .project-gallery__group,
 .project-gallery__card {
   grid-column: var(--item-column);
@@ -37,6 +57,7 @@
   width: 100%;
   min-width: 0;
   min-height: 0;
+  aspect-ratio: var(--item-ratio);
 }
 
 .project-gallery__card {
@@ -115,10 +136,43 @@
   .project-gallery[data-gallery-variant='rat-dot'] .project-gallery__layout {
     grid-template-columns: minmax(0, 766fr) minmax(0, 521fr);
   }
+
+  .project-gallery[data-gallery-variant='wolfs'] .project-gallery__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-gallery .project-gallery__footer {
+    flex-wrap: wrap;
+    min-height: auto;
+    padding-left: 0;
+    font-size: 0.7226875rem;
+    line-height: 1.2;
+  }
 }
 
 @media (max-width: 600px) {
   .project-gallery[data-gallery-variant] .project-gallery__layout {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-gallery[data-gallery-variant='wolfs'] .project-gallery__group {
+    grid-template-rows: auto;
+    gap: 0.75rem;
+    aspect-ratio: auto;
+  }
+
+  .project-gallery[data-gallery-variant='wolfs'] [data-gallery-group='wolfs-top'],
+  .project-gallery[data-gallery-variant='wolfs'] [data-gallery-group='wolfs-bottom'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-gallery[data-gallery-variant='wolfs'] .project-gallery__group > * {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .project-gallery[data-gallery-variant='wolfs'] [data-gallery-card='wolfs-sticker'],
+  .project-gallery[data-gallery-variant='wolfs'] [data-gallery-card='wolfs-shopping-bag'] {
+    grid-column: 1 / -1;
   }
 }

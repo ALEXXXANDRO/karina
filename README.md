@@ -6,7 +6,9 @@
 Сразу после Hero подключён первый экран RAT DOT через общий `ProjectIntro`.
 Иллюстрация RAT DOT подключена из `public/assets/RatDot/rat-dot-cover.png`.
 После него добавлена галерея RAT DOT с девятью локальными изображениями
-из `public/assets/RatDot/gallery/`. ABOUT и следующие проекты пока не реализованы.
+из `public/assets/RatDot/gallery/`. После RAT DOT подключены описание и
+галерея WOLFS с локальной обложкой и семью изображениями галереи.
+ABOUT и MASCOT S7 пока не реализованы.
 
 ## Требования и запуск
 
@@ -40,6 +42,7 @@ npm run preview
 - `src/components/ProjectIntro/` — общий вводный экран проекта.
 - `src/components/ProjectGallery/` — общая галерея с вложенными Grid-сетками.
 - `src/data/ratDotGallery.ts`, `src/types/gallery.ts` — раскладка RAT DOT и типы галерей.
+- `src/data/wolfs.ts`, `src/data/wolfsGallery.ts` — описание и отдельная сетка WOLFS.
 - `src/data/ratDot.ts`, `src/types/project.ts` — данные RAT DOT и типы проектов.
 - `src/styles/tokens.css` — цвета, типографика и размеры из макета.
 - `src/styles/global.css` — базовые стили и настройки прокрутки.
@@ -54,5 +57,6 @@ Inter поставляется через `@fontsource-variable/inter`: Vite в�
 [docs/project-intro.md](docs/project-intro.md).
 Структура галереи и список необходимых экспортов:
 [docs/project-gallery.md](docs/project-gallery.md).
+Геометрия и список необходимых изображений WOLFS: [docs/wolfs.md](docs/wolfs.md).
 
 Правила разработки находятся в [AGENTS.md](AGENTS.md).

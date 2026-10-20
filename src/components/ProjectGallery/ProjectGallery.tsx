@@ -12,6 +12,7 @@ type GridStyle = CSSProperties & {
 type ItemStyle = CSSProperties & {
   '--item-column': string;
   '--item-row': string;
+  '--item-ratio': string;
 };
 
 function getGridStyle(grid: GalleryGrid): GridStyle {
@@ -32,7 +33,7 @@ function GalleryItem({ item }: { readonly item: GalleryNode }) {
   const style: ItemStyle = {
     '--item-column': `${item.placement.column} / span ${item.placement.columnSpan ?? 1}`,
     '--item-row': `${item.placement.row} / span ${item.placement.rowSpan ?? 1}`,
-    aspectRatio: `${item.geometry.width} / ${item.geometry.height}`,
+    '--item-ratio': `${item.geometry.width} / ${item.geometry.height}`,
   };
 
   if (item.kind === 'group') {
@@ -81,8 +82,19 @@ function ProjectGallery({ gallery }: { readonly gallery: ProjectGalleryData }) {
       aria-labelledby={gallery.labelledBy}
       data-gallery-variant={gallery.variant}
     >
-      <div className="project-gallery__grid project-gallery__layout" style={getGridStyle(gallery.grid)}>
+      <div
+        className={`project-gallery__grid project-gallery__layout${
+          gallery.footer ? ' project-gallery__layout--with-footer' : ''
+        }`}
+        style={getGridStyle(gallery.grid)}
+      >
         {gallery.children.map((item) => <GalleryItem key={item.id} item={item} />)}
+        {gallery.footer && (
+          <footer className="project-gallery__footer">
+            <p>{gallery.footer.author}</p>
+            <p>{gallery.footer.project}</p>
+          </footer>
+        )}
       </div>
     </section>
   );
