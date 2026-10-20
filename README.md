@@ -8,7 +8,8 @@
 После него добавлена галерея RAT DOT с девятью локальными изображениями
 из `public/assets/RatDot/gallery/`. После RAT DOT подключены описание и
 галерея WOLFS с локальной обложкой и семью изображениями галереи.
-ABOUT и MASCOT S7 пока не реализованы.
+После WOLFS добавлен MASCOT S7: описание с локальной обложкой и галерея
+с пятью локальными изображениями. ABOUT пока не реализован.
 
 ## Требования и запуск
 
@@ -43,6 +44,7 @@ npm run preview
 - `src/components/ProjectGallery/` — общая галерея с вложенными Grid-сетками.
 - `src/data/ratDotGallery.ts`, `src/types/gallery.ts` — раскладка RAT DOT и типы галерей.
 - `src/data/wolfs.ts`, `src/data/wolfsGallery.ts` — описание и отдельная сетка WOLFS.
+- `src/data/mascotS7.ts`, `src/data/mascotS7Gallery.ts` — описание и сетка S7.
 - `src/data/ratDot.ts`, `src/types/project.ts` — данные RAT DOT и типы проектов.
 - `src/styles/tokens.css` — цвета, типографика и размеры из макета.
 - `src/styles/global.css` — базовые стили и настройки прокрутки.
@@ -58,5 +60,7 @@ Inter поставляется через `@fontsource-variable/inter`: Vite в�
 Структура галереи и список необходимых экспортов:
 [docs/project-gallery.md](docs/project-gallery.md).
 Геометрия и список необходимых изображений WOLFS: [docs/wolfs.md](docs/wolfs.md).
+Геометрия S7, недостающие изображения и временные тексты из макета:
+[docs/mascot-s7.md](docs/mascot-s7.md).
 
 Правила разработки находятся в [AGENTS.md](AGENTS.md).

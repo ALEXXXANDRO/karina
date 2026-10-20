@@ -1,0 +1,32 @@
+/* No tablet/mobile reference: stack groups while preserving card proportions. */
+@media (max-width: 1100px) {
+  .project-gallery[data-gallery-variant='s7'] .project-gallery__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-gallery[data-gallery-variant='s7'] .project-gallery__layout > .project-gallery__card {
+    max-width: 47.8125rem;
+  }
+}
+
+@media (max-width: 600px) {
+  #mascot-s7 .project-intro__facts {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.7fr);
+  }
+
+  #mascot-s7 .project-intro__fact dd {
+    overflow-wrap: anywhere;
+  }
+
+  .project-gallery[data-gallery-variant='s7'] .project-gallery__group {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    gap: 0.75rem;
+    aspect-ratio: auto;
+  }
+
+  .project-gallery[data-gallery-variant='s7'] .project-gallery__group > * {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}

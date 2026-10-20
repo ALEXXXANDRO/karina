@@ -6,6 +6,9 @@ import { ratDotGallery } from './data/ratDotGallery';
 import { wolfsProject } from './data/wolfs';
 import { wolfsGallery } from './data/wolfsGallery';
 import './styles/wolfs.css';
+import { mascotS7Project } from './data/mascotS7';
+import { mascotS7Gallery } from './data/mascotS7Gallery';
+import './styles/mascotS7.css';
 
 function App() {
   return (
@@ -15,6 +18,8 @@ function App() {
       <ProjectGallery gallery={ratDotGallery} />
       <ProjectIntro project={wolfsProject} />
       <ProjectGallery gallery={wolfsGallery} />
+      <ProjectIntro project={mascotS7Project} />
+      <ProjectGallery gallery={mascotS7Gallery} />
     </main>
   );
 }
