@@ -3,7 +3,6 @@ import { heroObjects } from './heroObjects';
 import HeroBean from './HeroBean';
 import { useBeanInteraction } from './useBeanInteraction';
 import { heroMotion } from './heroMotion';
-import CursorTrail from '../../effects/CursorTrail/CursorTrail';
 import './Hero.css';
 
 function Hero() {
@@ -48,7 +47,6 @@ function Hero() {
           </p>
         </div>
       </div>
-      <CursorTrail />
     </section>
   );
 }

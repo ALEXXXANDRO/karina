@@ -10,11 +10,14 @@ import { mascotS7Project } from './data/mascotS7';
 import { mascotS7Gallery } from './data/mascotS7Gallery';
 import './styles/mascotS7.css';
 import TravelerBean from './effects/TravelerBean/TravelerBean';
+import GlobalAtmosphere from './effects/GlobalAtmosphere/GlobalAtmosphere';
+import CursorTrail from './effects/CursorTrail/CursorTrail';
 
 function App() {
   return (
     <>
-      <main>
+      <GlobalAtmosphere />
+      <main className="portfolio-content">
         <Hero />
         <ProjectIntro project={ratDotProject} />
         <ProjectGallery gallery={ratDotGallery} />
@@ -24,6 +27,7 @@ function App() {
         <ProjectGallery gallery={mascotS7Gallery} />
       </main>
       <TravelerBean />
+      <CursorTrail />
     </>
   );
 }

@@ -27,8 +27,7 @@ function CursorTrail() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const hero = canvas?.parentElement;
-    if (!enabled || !canvas || !hero) return;
+    if (!enabled || !canvas) return;
     const context = canvas.getContext('2d');
     if (!context) return;
 
@@ -129,8 +128,7 @@ function CursorTrail() {
     };
     const move = (event: PointerEvent) => {
       if (event.pointerType !== 'mouse' || !allowed()) return;
-      const rect = hero.getBoundingClientRect();
-      const current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      const current = { x: event.clientX, y: event.clientY };
       if (current.x < 0 || current.y < 0 || current.x > width || current.y > height) {
         resetPath();
         return;
@@ -159,7 +157,7 @@ function CursorTrail() {
       if (!frame) frame = window.requestAnimationFrame(render);
     };
     const resize = () => {
-      const rect = hero.getBoundingClientRect();
+      const rect = canvas.getBoundingClientRect();
       const nextRawDpr = window.devicePixelRatio || 1;
       const nextDpr = Math.min(nextRawDpr, settings.maxDpr);
       if (nextRawDpr !== rawDpr) {
@@ -179,10 +177,9 @@ function CursorTrail() {
     const preferencesChanged = () => { if (!allowed()) stop(); };
     resize();
     const observer = new ResizeObserver(resize);
-    observer.observe(hero);
-    hero.addEventListener('pointermove', move, { passive: true });
-    hero.addEventListener('pointerleave', resetPath);
-    window.addEventListener('scroll', resetPath, { passive: true });
+    observer.observe(canvas);
+    document.addEventListener('pointermove', move, { passive: true });
+    document.documentElement.addEventListener('pointerleave', resetPath);
     window.addEventListener('resize', resize);
     window.addEventListener('blur', resetPath);
     document.addEventListener('visibilitychange', preferencesChanged);
@@ -192,9 +189,8 @@ function CursorTrail() {
       stop();
       observer.disconnect();
       resolution?.removeEventListener('change', resize);
-      hero.removeEventListener('pointermove', move);
-      hero.removeEventListener('pointerleave', resetPath);
-      window.removeEventListener('scroll', resetPath);
+      document.removeEventListener('pointermove', move);
+      document.documentElement.removeEventListener('pointerleave', resetPath);
       window.removeEventListener('resize', resize);
       window.removeEventListener('blur', resetPath);
       document.removeEventListener('visibilitychange', preferencesChanged);
