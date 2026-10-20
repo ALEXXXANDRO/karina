@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { portfolioEffects } from '../config';
-import { createStarField, wrap } from './atmosphereField';
+import { createGraphicField, getGraphicAngle, getParallaxY, getVisibleCopies, wrap } from './atmosphereField';
 import './GlobalAtmosphere.css';
 
 function GlobalAtmosphere() {
@@ -14,24 +14,10 @@ function GlobalAtmosphere() {
     if (!context) return;
     const motion = window.matchMedia('(prefers-reduced-motion: no-preference)');
     const mouse = window.matchMedia(`(min-width: ${settings.mobileBreakpoint + 1}px) and (hover: hover) and (pointer: fine)`);
-    const stars = createStarField(Math.max(settings.starCount, settings.mobileStarCount), undefined, {
-      dust: settings.dustSize, medium: settings.mediumStarSize, large: settings.largeStarSize,
+    const elements = createGraphicField(settings);
+    const mobileElements = createGraphicField({
+      ...settings, strokeCount: settings.mobileStrokeCount, markerCount: settings.mobileMarkerCount,
     });
-    const layers = {
-      far: { scroll: settings.farScrollFactor, cursor: settings.farCursorOffset },
-      mid: { scroll: settings.midScrollFactor, cursor: settings.midCursorOffset },
-      near: { scroll: settings.nearScrollFactor, cursor: settings.nearCursorOffset },
-    };
-    const glows = [
-      { x: 0.16, y: 0.16, color: settings.colors[0], depth: 'far', intensity: 1 },
-      { x: 0.75, y: 0.4, color: settings.colors[1], depth: 'far', intensity: 0.9 },
-      { x: 0.36, y: 0.65, color: settings.colors[2], depth: 'far', intensity: 1 },
-      { x: 0.08, y: 0.9, color: settings.colors[3], depth: 'far', intensity: 0.35 },
-    ] as const;
-    // Soft gradients need no high-DPR detail. Cache at CSS resolution on resize,
-    // rather than recomputing four large radial gradients on every scroll frame.
-    const glowSprites = glows.map(() => document.createElement('canvas'));
-    let glowDiameter = 0;
     let width = 0;
     let height = 0;
     let dpr = 1;
@@ -44,69 +30,39 @@ function GlobalAtmosphere() {
 
     const paint = () => {
       context.setTransform(1, 0, 0, 1, 0, 0);
-      context.globalAlpha = 1;
-      context.fillStyle = '#1c1c1c';
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.clearRect(0, 0, canvas.width, canvas.height);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       const scroll = motion.matches ? window.scrollY : 0;
       const mobile = width <= settings.mobileBreakpoint || !mouse.matches;
-      const count = mobile ? Math.min(settings.mobileStarCount, settings.starCount) : settings.starCount;
-      const radius = glowDiameter / 2;
-      const glowPeriod = Math.max(settings.tileHeight, glowDiameter + 1);
-      for (const [index, glow] of glows.entries()) {
-        const sprite = glowSprites[index];
-        if (!sprite) continue;
-        const layer = layers[glow.depth];
-        const x = glow.x * width + cursor.x * layer.cursor;
-        const y = wrap(glow.y * glowPeriod - scroll * layer.scroll + cursor.y * layer.cursor, glowPeriod);
-        context.globalAlpha = settings.glowOpacity * glow.intensity;
-        for (let cy = y - glowPeriod; cy <= height + radius; cy += glowPeriod) {
-          if (cy < -radius) continue;
-          context.drawImage(sprite, x - radius, cy - radius, glowDiameter, glowDiameter);
-        }
-      }
-      for (const star of stars.slice(0, count)) {
-        const layer = layers[star.depth];
-        const starRadius = star.radius * (mobile && star.cross ? settings.mobileLargeStarScale : 1);
-        const extent = starRadius * (star.glow ? settings.starGlowScale : 1);
-        const x = wrap(star.x * width + cursor.x * layer.cursor, width);
-        const y = wrap(star.y * settings.tileHeight - scroll * layer.scroll
-          + cursor.y * layer.cursor, settings.tileHeight);
-        const opacity = Math.min(1, settings.starOpacity * star.opacity);
-        const color = settings.colors[star.colorIndex] ?? settings.colors[0];
-        // Draw neighbouring copies while crossing an edge, so a star never pops.
-        const xs = [x];
-        if (x < extent) xs.push(x + width);
-        if (x > width - extent) xs.push(x - width);
-        for (let cy = y - settings.tileHeight; cy <= height + extent; cy += settings.tileHeight) {
-          if (cy < -extent) continue;
+      context.strokeStyle = settings.inkColor;
+      context.lineCap = 'butt';
+      for (const element of mobile ? mobileElements : elements) {
+        const extent = element.size / 2 + element.lineWidth;
+        const x = wrap(element.x * width + cursor.x * settings.cursorOffset, width);
+        const y = getParallaxY(element.y * settings.tileHeight, scroll, settings.scrollFactor,
+          settings.tileHeight, cursor.y * settings.cursorOffset);
+        context.globalAlpha = settings.opacity * element.opacity;
+        context.lineWidth = element.lineWidth;
+        // Neighbouring copies preserve complete strokes at the tile edges.
+        const xs = getVisibleCopies(x, width, width, extent);
+        for (const cy of getVisibleCopies(y, settings.tileHeight, height, extent)) {
           for (const cx of xs) {
             context.save();
             context.translate(cx, cy);
-            context.rotate(star.angle);
-            if (star.glow) {
-              const halo = context.createRadialGradient(0, 0, 0, 0, 0, extent);
-              halo.addColorStop(0, color);
-              halo.addColorStop(1, `${color}00`);
-              context.globalAlpha = opacity * settings.starGlowOpacity;
-              context.fillStyle = halo;
-              context.beginPath();
-              context.arc(0, 0, extent, 0, Math.PI * 2);
-              context.fill();
-            }
-            context.globalAlpha = opacity;
-            context.fillStyle = color;
+            context.rotate(getGraphicAngle(element, scroll, settings, motion.matches));
+            const half = element.size / 2;
             context.beginPath();
-            if (star.cross) {
-              for (let vertex = 0; vertex < 8; vertex++) {
-                const angle = vertex * Math.PI / 4;
-                const r = starRadius * (vertex % 2 ? 0.22 : 1);
-                if (!vertex) context.moveTo(Math.cos(angle) * r, Math.sin(angle) * r);
-                else context.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
-              }
-              context.closePath();
-            } else context.arc(0, 0, starRadius, 0, Math.PI * 2);
-            context.fill();
+            context.moveTo(-half, 0);
+            context.lineTo(half, 0);
+            if (element.kind !== 'stroke') {
+              context.moveTo(0, -half);
+              context.lineTo(0, half);
+            }
+            if (element.kind === 'registration') {
+              context.moveTo(half * 0.55, 0);
+              context.arc(0, 0, half * 0.55, 0, Math.PI * 2);
+            }
+            context.stroke();
             context.restore();
           }
         }
@@ -156,24 +112,6 @@ function GlobalAtmosphere() {
       }
       canvas.width = Math.max(1, Math.round(width * dpr));
       canvas.height = Math.max(1, Math.round(height * dpr));
-      glowDiameter = Math.round(Math.max(settings.glowMinDiameter,
-        Math.min(settings.glowMaxDiameter, width * settings.glowViewportRatio)));
-      glows.forEach((glow, index) => {
-        const sprite = glowSprites[index];
-        if (!sprite) return;
-        sprite.width = sprite.height = glowDiameter;
-        const brush = sprite.getContext('2d');
-        if (!brush) return;
-        const radius = glowDiameter / 2;
-        const gradient = brush.createRadialGradient(radius, radius, 0, radius, radius, radius);
-        gradient.addColorStop(0, glow.color);
-        gradient.addColorStop(0.2, `${glow.color}e0`);
-        gradient.addColorStop(0.5, `${glow.color}66`);
-        gradient.addColorStop(0.78, `${glow.color}1a`);
-        gradient.addColorStop(1, `${glow.color}00`);
-        brush.fillStyle = gradient;
-        brush.fillRect(0, 0, glowDiameter, glowDiameter);
-      });
       preferences();
     };
     const visibility = () => {
