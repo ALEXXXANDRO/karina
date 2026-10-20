@@ -1,46 +1,53 @@
-# Getting Started with Create React App
+# Karina — портфолио графического дизайнера
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Техническая основа: React, TypeScript, Vite и обычный CSS.
+Реализован первый экран PORTFOLIO: HTML-заголовок и подпись с эффектами
+размытия, шесть прозрачных PNG и адаптация для планшетов и телефонов.
+Сразу после Hero подключён первый экран RAT DOT через общий `ProjectIntro`.
+Иллюстрация RAT DOT подключена из `public/assets/RatDot/rat-dot-cover.png`.
+ABOUT, галереи и следующие проекты пока не реализованы.
 
-## Available Scripts
+## Требования и запуск
 
-In the project directory, you can run:
+Node.js `^20.19.0 || >=22.12.0` и npm (см. `engines` в `package.json`).
 
-### `npm start`
+```sh
+npm ci
+npm run dev
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Откройте адрес Vite в терминале (обычно http://localhost:5173).
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Проверки и сборка
 
-### `npm test`
+```sh
+npm run typecheck
+npm run build
+npm run preview
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+`build` проверяет типы и создаёт production-сборку в `dist/`.
+`preview` позволяет просмотреть эту сборку локально.
+Тестовый раннер пока не настроен; стартовый тест Create React App удалён.
 
-### `npm run build`
+## Структура
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- `index.html` — HTML-точка входа Vite.
+- `src/main.tsx` — подключение React, локального Inter и глобальных стилей.
+- `src/App.tsx` — корневой компонент приложения.
+- `src/sections/Hero/` — компонент обложки, CSS и конфигурация всех 13 объектов.
+- `src/components/ProjectIntro/` — общий вводный экран проекта.
+- `src/data/ratDot.ts`, `src/types/project.ts` — данные RAT DOT и типы проектов.
+- `src/styles/tokens.css` — цвета, типографика и размеры из макета.
+- `src/styles/global.css` — базовые стили и настройки прокрутки.
+- `public/` — статические файлы.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Inter поставляется через `@fontsource-variable/inter`: Vite включает файлы
+шрифта в сборку, внешние шрифтовые сервисы не используются.
+Декор находится в `public/assets/hero/`. Семь объектов отключены до получения
+корректных прозрачных экспортов. Статусы и координаты описаны в
+[docs/hero-assets.md](docs/hero-assets.md).
+Размеры, недостающие материалы и допущения RAT DOT описаны в
+[docs/project-intro.md](docs/project-intro.md).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Правила разработки находятся в [AGENTS.md](AGENTS.md).
