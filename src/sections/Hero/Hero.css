@@ -1,0 +1,111 @@
+.hero {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.hero__canvas {
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+  width: 100%;
+  max-width: var(--content-max-width);
+  aspect-ratio: 1920 / 1080;
+}
+
+.hero__decoration {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero__object {
+  position: absolute;
+  left: var(--object-x);
+  top: var(--object-y);
+  width: var(--object-width);
+  height: auto;
+  aspect-ratio: var(--object-ratio);
+  object-fit: contain;
+}
+
+.hero__copy {
+  position: absolute;
+  left: 12.760416667%;
+  top: 37.037037037%;
+  width: 74.479166667%;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.hero__title {
+  position: relative;
+  height: 11.666666667cqw;
+  font-size: 12.362708333cqw;
+  font-weight: var(--font-weight-black);
+  line-height: 1;
+}
+
+.hero__title-glow {
+  position: absolute;
+  inset: 0;
+  filter: blur(0.260416667cqw);
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero__title-text {
+  position: relative;
+}
+
+.hero__subtitle {
+  margin-top: 1.145833333cqw;
+  font-size: 1.425cqw;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  filter: blur(0.078125cqw);
+}
+
+@media (min-width: 601px) and (max-width: 1024px) and (orientation: landscape) {
+  .hero__canvas {
+    width: min(100%, 177.777777778svh);
+  }
+}
+
+/* No mobile frame is available: keep the title clear and rearrange the artwork. */
+@media (max-width: 1024px) and (orientation: portrait), (max-width: 600px) {
+  .hero__canvas {
+    min-height: 100svh;
+    aspect-ratio: auto;
+  }
+
+  .hero__copy {
+    left: 5%;
+    top: 50%;
+    width: 90%;
+    transform: translateY(-50%);
+  }
+
+  .hero__title {
+    height: auto;
+    font-size: 14.4cqw;
+  }
+
+  .hero__subtitle {
+    max-width: 42ch;
+    margin: 1.5rem auto 0;
+    font-size: clamp(0.8125rem, 2.05cqw, 1rem);
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+
+  .hero__object {
+    left: var(--object-compact-x);
+    top: var(--object-compact-y);
+    width: var(--object-compact-width);
+  }
+}
