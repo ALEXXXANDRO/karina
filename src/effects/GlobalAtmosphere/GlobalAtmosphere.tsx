@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { portfolioEffects } from '../config';
-import { createGraphicField, getGraphicAngle, getParallaxY, getVisibleCopies, wrap } from './atmosphereField';
+import { getTilePositions, referenceTile } from './atmosphereField';
+import marksUrl from './figma-marks.svg';
 import './GlobalAtmosphere.css';
 
 function GlobalAtmosphere() {
@@ -14,10 +15,11 @@ function GlobalAtmosphere() {
     if (!context) return;
     const motion = window.matchMedia('(prefers-reduced-motion: no-preference)');
     const mouse = window.matchMedia(`(min-width: ${settings.mobileBreakpoint + 1}px) and (hover: hover) and (pointer: fine)`);
-    const elements = createGraphicField(settings);
-    const mobileElements = createGraphicField({
-      ...settings, strokeCount: settings.mobileStrokeCount, markerCount: settings.mobileMarkerCount,
-    });
+    const artwork = new Image();
+    const tile = document.createElement('canvas');
+    let loaded = false;
+    let tileWidth = 0;
+    let tileHeight = 0;
     let width = 0;
     let height = 0;
     let dpr = 1;
@@ -33,39 +35,14 @@ function GlobalAtmosphere() {
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       const scroll = motion.matches ? window.scrollY : 0;
-      const mobile = width <= settings.mobileBreakpoint || !mouse.matches;
-      context.strokeStyle = settings.inkColor;
-      context.lineCap = 'butt';
-      for (const element of mobile ? mobileElements : elements) {
-        const extent = element.size / 2 + element.lineWidth;
-        const x = wrap(element.x * width + cursor.x * settings.cursorOffset, width);
-        const y = getParallaxY(element.y * settings.tileHeight, scroll, settings.scrollFactor,
-          settings.tileHeight, cursor.y * settings.cursorOffset);
-        context.globalAlpha = settings.opacity * element.opacity;
-        context.lineWidth = element.lineWidth;
-        // Neighbouring copies preserve complete strokes at the tile edges.
-        const xs = getVisibleCopies(x, width, width, extent);
-        for (const cy of getVisibleCopies(y, settings.tileHeight, height, extent)) {
-          for (const cx of xs) {
-            context.save();
-            context.translate(cx, cy);
-            context.rotate(getGraphicAngle(element, scroll, settings, motion.matches));
-            const half = element.size / 2;
-            context.beginPath();
-            context.moveTo(-half, 0);
-            context.lineTo(half, 0);
-            if (element.kind !== 'stroke') {
-              context.moveTo(0, -half);
-              context.lineTo(0, half);
-            }
-            if (element.kind === 'registration') {
-              context.moveTo(half * 0.55, 0);
-              context.arc(0, 0, half * 0.55, 0, Math.PI * 2);
-            }
-            context.stroke();
-            context.restore();
-          }
-        }
+      if (!loaded || !tileWidth || !tileHeight) return;
+      context.globalAlpha = settings.opacity;
+      // The exact exported group is cached once per size/DPR. Its SVG blur is
+      // never recalculated for every tile on every scroll frame.
+      const positions = getTilePositions(width, height, tileWidth, tileHeight, scroll,
+        settings.scrollFactor, cursor.x * settings.cursorOffset, cursor.y * settings.cursorOffset);
+      for (const { x, y } of positions) {
+        context.drawImage(tile, x, y, tileWidth, tileHeight);
       }
       context.globalAlpha = 1;
     };
@@ -99,6 +76,15 @@ function GlobalAtmosphere() {
       cursor.x = cursor.y = target.x = target.y = 0;
       schedule();
     };
+    const cacheArtwork = () => {
+      const mobile = width <= settings.mobileBreakpoint || !mouse.matches;
+      const scale = mobile ? settings.mobileTileScale : settings.tileScale;
+      tileWidth = referenceTile.width * scale;
+      tileHeight = referenceTile.height * scale;
+      tile.width = Math.max(1, Math.round(tileWidth * dpr));
+      tile.height = Math.max(1, Math.round(tileHeight * dpr));
+      if (loaded) tile.getContext('2d')?.drawImage(artwork, 0, 0, tile.width, tile.height);
+    };
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
       width = rect.width;
@@ -112,6 +98,7 @@ function GlobalAtmosphere() {
       }
       canvas.width = Math.max(1, Math.round(width * dpr));
       canvas.height = Math.max(1, Math.round(height * dpr));
+      cacheArtwork();
       preferences();
     };
     const visibility = () => {
@@ -120,6 +107,12 @@ function GlobalAtmosphere() {
       previousTime = 0;
       preferences();
     };
+    artwork.onload = () => {
+      loaded = true;
+      cacheArtwork();
+      schedule();
+    };
+    artwork.src = marksUrl;
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
@@ -130,8 +123,10 @@ function GlobalAtmosphere() {
     document.documentElement.addEventListener('pointerleave', resetCursor);
     document.addEventListener('visibilitychange', visibility);
     motion.addEventListener('change', preferences);
-    mouse.addEventListener('change', preferences);
+    const pointerPreference = () => { cacheArtwork(); preferences(); };
+    mouse.addEventListener('change', pointerPreference);
     return () => {
+      artwork.onload = null;
       window.cancelAnimationFrame(frame);
       observer.disconnect();
       resolution?.removeEventListener('change', resize);
@@ -142,7 +137,7 @@ function GlobalAtmosphere() {
       document.documentElement.removeEventListener('pointerleave', resetCursor);
       document.removeEventListener('visibilitychange', visibility);
       motion.removeEventListener('change', preferences);
-      mouse.removeEventListener('change', preferences);
+      mouse.removeEventListener('change', pointerPreference);
     };
   }, [settings]);
 
