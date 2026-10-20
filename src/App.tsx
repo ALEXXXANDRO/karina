@@ -9,18 +9,22 @@ import './styles/wolfs.css';
 import { mascotS7Project } from './data/mascotS7';
 import { mascotS7Gallery } from './data/mascotS7Gallery';
 import './styles/mascotS7.css';
+import TravelerBean from './effects/TravelerBean/TravelerBean';
 
 function App() {
   return (
-    <main>
-      <Hero />
-      <ProjectIntro project={ratDotProject} />
-      <ProjectGallery gallery={ratDotGallery} />
-      <ProjectIntro project={wolfsProject} />
-      <ProjectGallery gallery={wolfsGallery} />
-      <ProjectIntro project={mascotS7Project} />
-      <ProjectGallery gallery={mascotS7Gallery} />
-    </main>
+    <>
+      <main>
+        <Hero />
+        <ProjectIntro project={ratDotProject} />
+        <ProjectGallery gallery={ratDotGallery} />
+        <ProjectIntro project={wolfsProject} />
+        <ProjectGallery gallery={wolfsGallery} />
+        <ProjectIntro project={mascotS7Project} />
+        <ProjectGallery gallery={mascotS7Gallery} />
+      </main>
+      <TravelerBean />
+    </>
   );
 }
 

@@ -1,4 +1,5 @@
 import type { ProjectIntroData } from '../../types/project';
+import { useProjectTitleReveal } from '../../effects/ProjectTitles/useProjectTitleReveal';
 import './ProjectIntro.css';
 
 interface ProjectIntroProps {
@@ -7,12 +8,13 @@ interface ProjectIntroProps {
 
 function ProjectIntro({ project }: ProjectIntroProps) {
   const headingId = `${project.id}-title`;
+  const titleRef = useProjectTitleReveal();
 
   return (
     <section className="project-intro" id={project.id} aria-labelledby={headingId}>
       <div className="project-intro__layout">
         <div className="project-intro__content">
-          <h2 className="project-intro__title" id={headingId}>
+          <h2 className="project-intro__title" id={headingId} ref={titleRef}>
             {project.titleLines.map((line, index) => (
               <span key={`${index}-${line}`}>{line}</span>
             ))}

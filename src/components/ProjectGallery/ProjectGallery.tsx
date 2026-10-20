@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { GalleryGrid, GalleryNode, ProjectGalleryData } from '../../types/gallery';
+import { useLiveGallery } from '../../effects/LiveGallery/useLiveGallery';
 import './ProjectGallery.css';
 
 type GridStyle = CSSProperties & {
@@ -59,28 +60,32 @@ function GalleryItem({ item }: { readonly item: GalleryNode }) {
       style={style}
       aria-hidden={item.kind === 'placeholder' ? true : undefined}
     >
-      {item.kind === 'image' && (
-        <img
-          className="project-gallery__image"
-          src={`${import.meta.env.BASE_URL}${item.image.src}`}
-          alt={item.image.alt}
-          width={item.image.width}
-          height={item.image.height}
-          loading="lazy"
-          decoding="async"
-        />
-      )}
+      <div className="project-gallery__surface">
+        {item.kind === 'image' && (
+          <img
+            className="project-gallery__image"
+            src={`${import.meta.env.BASE_URL}${item.image.src}`}
+            alt={item.image.alt}
+            width={item.image.width}
+            height={item.image.height}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+      </div>
     </div>
   );
 }
 
 function ProjectGallery({ gallery }: { readonly gallery: ProjectGalleryData }) {
+  const galleryRef = useLiveGallery();
   return (
     <section
       className="project-gallery"
       id={gallery.id}
       aria-labelledby={gallery.labelledBy}
       data-gallery-variant={gallery.variant}
+      ref={galleryRef}
     >
       <div
         className={`project-gallery__grid project-gallery__layout${

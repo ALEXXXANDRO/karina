@@ -1,0 +1,36 @@
+.traveler-bean {
+  position: fixed;
+  right: 0;
+  z-index: 5;
+  width: var(--traveler-size, 120px);
+  aspect-ratio: 104 / 83;
+  overflow: clip;
+  pointer-events: none;
+  user-select: none;
+}
+
+.traveler-bean img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: translateX(100%);
+  transition: transform 550ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.traveler-bean[data-peeking='true'] img {
+  transform: translateX(var(--traveler-hidden-part, 50%));
+}
+
+.traveler-bean[data-scared='true'] img {
+  transition-duration: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traveler-bean {
+    display: none;
+  }
+
+  .traveler-bean img {
+    transition: none;
+  }
+}
