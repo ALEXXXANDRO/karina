@@ -20,7 +20,7 @@ npm ci
 npm run dev
 ```
 
-Откройте адрес Vite в терминале (обычно http://localhost:5173).
+Откройте адрес Vite в терминале (обычно http://localhost:5173/karina/).
 
 ## Проверки и сборка
 
@@ -33,6 +33,25 @@ npm run preview
 `build` проверяет типы и создаёт production-сборку в `dist/`.
 `preview` позволяет просмотреть эту сборку локально.
 Тестовый раннер пока не настроен; стартовый тест Create React App удалён.
+
+## GitHub Pages
+
+Репозиторий: https://github.com/ALEXXXANDRO/karina.
+Адрес сайта: https://alexxxandro.github.io/karina/.
+В `vite.config.ts` задан `base: '/karina/'`; он также используется локально.
+После `npm run build` команда `npm run preview` открывает сборку по адресу
+http://localhost:4173/karina/ (или на порту, указанном Vite).
+
+Для первой публикации в репозитории откройте **Settings → Pages** и выберите
+**GitHub Actions** в поле **Source**. Отправьте изменения в ветку `main`:
+workflow `.github/workflows/deploy.yml` установит зависимости через `npm ci`,
+проверит TypeScript, соберёт приложение и опубликует содержимое `dist`.
+Проверить результат можно во вкладке **Actions**; workflow также поддерживает
+ручной запуск через **Run workflow**. Каталог `dist` коммитить не нужно.
+
+Изображения из `public/assets/` подключаются через `import.meta.env.BASE_URL`,
+а локальные шрифты обрабатываются Vite. Пути сохраняют регистр, включая
+`assets/RatDot/`. При переименовании репозитория необходимо обновить `base`.
 
 ## Структура
 
