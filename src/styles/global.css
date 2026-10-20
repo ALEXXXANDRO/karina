@@ -53,8 +53,23 @@ a {
   color: inherit;
 }
 
+/* Native document snapping only; short viewports keep unrestricted scrolling. */
+@media (min-width: 1024px) and (min-height: 720px) and (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-snap-type: y mandatory;
+  }
+
+  .hero,
+  .project-intro,
+  .project-gallery {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+    scroll-snap-type: none;
   }
 }
