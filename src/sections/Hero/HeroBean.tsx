@@ -79,13 +79,15 @@ function HeroBean({ object, index, party, onInteraction, onBeanClick }: HeroBean
             onClick={react}
             ref={buttonRef}
           >
-            <span className="hero__party">
-              <img
-                className="hero__bean-image"
-                src={`${import.meta.env.BASE_URL}assets/hero/${object.file}`}
-                alt=""
-                draggable={false}
-              />
+            <span className="hero__tilt">
+              <span className="hero__party">
+                <img
+                  className="hero__bean-image"
+                  src={`${import.meta.env.BASE_URL}assets/hero/${object.file}`}
+                  alt=""
+                  draggable={false}
+                />
+              </span>
             </span>
           </button>
         </div>

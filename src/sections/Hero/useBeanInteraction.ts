@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BeanPartyCounter, heroMotion } from './heroMotion';
+import { portfolioEffects } from '../../effects/config';
+import { getBeanTilt, getBeanTiltBlend } from './beanTilt';
 
 export const beanInteraction = {
   radius: 150,
@@ -10,6 +12,7 @@ export const beanInteraction = {
 } as const;
 
 export function useBeanInteraction() {
+  const tiltSettings = portfolioEffects.beanTilt;
   const containerRef = useRef<HTMLDivElement>(null);
   const wakeRef = useRef<() => void>(() => {});
   const clickRef = useRef<(id: string) => boolean>(() => false);
@@ -23,11 +26,18 @@ export function useBeanInteraction() {
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const finePointer = window.matchMedia('(min-width: 768px) and (hover: hover) and (pointer: fine)');
+    const tiltPointer = window.matchMedia('(hover: hover) and (pointer: fine)');
     const beans = Array.from(container.querySelectorAll<HTMLElement>('.hero__object'))
-      .map((element) => ({ element, x: 0, y: 0, tilt: 0 }));
+      .map((element) => ({
+        element, button: element.querySelector('button'),
+        surface: element.querySelector<HTMLElement>('.hero__tilt'),
+        x: 0, y: 0, tilt: 0, tiltX: 0, tiltY: 0,
+      }));
     let frame = 0;
     let previousTime = 0;
     let pointer = { x: 0, y: 0, active: false };
+    let hovered: Element | null = null;
+    let tiltTarget = { x: 0, y: 0 };
     let partyActive = false;
     let partyTimer = 0;
     const counter = new BeanPartyCounter(heroMotion.party.requiredBeans, heroMotion.party.windowMs);
@@ -47,6 +57,7 @@ export function useBeanInteraction() {
       delete container?.dataset.party;
       counter.clear();
       setIsParty(false);
+      sampleTilt();
       schedule();
     }
 
@@ -108,6 +119,32 @@ export function useBeanInteraction() {
         bean.element.style.setProperty('--evade-x', `${bean.x}px`);
         bean.element.style.setProperty('--evade-y', `${bean.y}px`);
         bean.element.style.setProperty('--evade-tilt', `${bean.tilt}deg`);
+
+        if (!tiltSettings.enabled) return;
+
+        let tiltX = 0;
+        let tiltY = 0;
+        if (!reducedMotion.matches && tiltPointer.matches && pointer.active && !partyActive) {
+          if (bean.element.dataset.spinning === 'true') {
+            // Keep the current 3D pose throughout an individual click action.
+            tiltX = bean.tiltX;
+            tiltY = bean.tiltY;
+          } else {
+            if (bean.element === hovered) {
+              tiltX = tiltTarget.x;
+              tiltY = tiltTarget.y;
+            }
+          }
+        }
+        const blend = getBeanTiltBlend(tiltSettings.smoothing, delta);
+        bean.tiltX += (tiltX - bean.tiltX) * blend;
+        bean.tiltY += (tiltY - bean.tiltY) * blend;
+        if (Math.abs(tiltX - bean.tiltX) + Math.abs(tiltY - bean.tiltY) < 0.01) {
+          bean.tiltX = tiltX;
+          bean.tiltY = tiltY;
+        } else settling = true;
+        bean.surface?.style.setProperty('--bean-tilt-x', `${bean.tiltX}deg`);
+        bean.surface?.style.setProperty('--bean-tilt-y', `${bean.tiltY}deg`);
       });
       if (settling) schedule();
       else previousTime = 0;
@@ -117,13 +154,32 @@ export function useBeanInteraction() {
       if (!frame && !reducedMotion.matches && !document.hidden) frame = requestAnimationFrame(update);
     }
 
+    function sampleTilt() {
+      const bean = beans.find((item) => item.element === hovered);
+      if (!tiltSettings.enabled || reducedMotion.matches || !tiltPointer.matches
+        || !pointer.active || partyActive || !bean?.button) {
+        tiltTarget = { x: 0, y: 0 };
+        return;
+      }
+      // Sample only on input/action boundaries. CSS floating must not keep a
+      // changing tilt target (and an unnecessary RAF loop) alive in idle state.
+      if (bean.element.dataset.spinning !== 'true') {
+        tiltTarget = getBeanTilt(pointer, bean.button.getBoundingClientRect(), tiltSettings);
+      }
+    }
+
     function resetPointer() {
       pointer.active = false;
+      hovered = null;
+      tiltTarget = { x: 0, y: 0 };
       schedule();
     }
 
     function movePointer(event: PointerEvent) {
       pointer = { x: event.clientX, y: event.clientY, active: event.pointerType === 'mouse' };
+      hovered = event.target instanceof Element
+        ? event.target.closest('.hero__bean-button')?.closest('.hero__object') ?? null : null;
+      sampleTilt();
       schedule();
     }
 
@@ -137,11 +193,20 @@ export function useBeanInteraction() {
       frame = 0;
       previousTime = 0;
       pointer.active = false;
+      hovered = null;
+      tiltTarget = { x: 0, y: 0 };
       beans.forEach((bean) => {
         bean.x = bean.y = bean.tilt = 0;
         bean.element.style.setProperty('--evade-x', '0px');
         bean.element.style.setProperty('--evade-y', '0px');
         bean.element.style.setProperty('--evade-tilt', '0deg');
+        bean.tiltX = bean.tiltY = 0;
+        const tiltAllowed = tiltSettings.enabled && !reducedMotion.matches && tiltPointer.matches;
+        if (tiltAllowed) bean.element.dataset.beanTilt = 'true';
+        else delete bean.element.dataset.beanTilt;
+        bean.surface?.style.setProperty('--bean-tilt-x', '0deg');
+        bean.surface?.style.setProperty('--bean-tilt-y', '0deg');
+        bean.surface?.style.setProperty('--bean-tilt-perspective', `${tiltSettings.perspective}px`);
         if (reducedMotion.matches) delete bean.element.dataset.spinning;
       });
     }
@@ -158,7 +223,8 @@ export function useBeanInteraction() {
       if (reducedMotion.matches) resetPreferences();
     }
 
-    wakeRef.current = schedule;
+    wakeRef.current = () => { sampleTilt(); schedule(); };
+    resetPreferences();
     window.addEventListener('pointermove', movePointer, { passive: true });
     document.documentElement.addEventListener('pointerleave', resetPointer);
     window.addEventListener('blur', resetPointer);
@@ -166,6 +232,7 @@ export function useBeanInteraction() {
     window.addEventListener('resize', resetPointer);
     reducedMotion.addEventListener('change', resetPreferences);
     finePointer.addEventListener('change', resetPreferences);
+    tiltPointer.addEventListener('change', resetPreferences);
     document.addEventListener('visibilitychange', visibilityChanged);
     container.addEventListener('animationcancel', animationCancelled);
 
@@ -177,6 +244,11 @@ export function useBeanInteraction() {
       delete container.dataset.party;
       delete container.dataset.suspended;
       clearIndividualActions();
+      beans.forEach((bean) => {
+        delete bean.element.dataset.beanTilt;
+        ['--bean-tilt-x', '--bean-tilt-y', '--bean-tilt-perspective']
+          .forEach((name) => bean.surface?.style.removeProperty(name));
+      });
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener('pointermove', movePointer);
       document.documentElement.removeEventListener('pointerleave', resetPointer);
@@ -185,10 +257,11 @@ export function useBeanInteraction() {
       window.removeEventListener('resize', resetPointer);
       reducedMotion.removeEventListener('change', resetPreferences);
       finePointer.removeEventListener('change', resetPreferences);
+      tiltPointer.removeEventListener('change', resetPreferences);
       document.removeEventListener('visibilitychange', visibilityChanged);
       container.removeEventListener('animationcancel', animationCancelled);
     };
-  }, []);
+  }, [tiltSettings]);
 
   return { containerRef, requestUpdate, registerClick, isParty };
 }

@@ -47,6 +47,7 @@
 
 .hero__float,
 .hero__reaction,
+.hero__tilt,
 .hero__party,
 .hero__bean-button {
   width: 100%;
@@ -90,7 +91,18 @@
   pointer-events: none;
 }
 
-/* Position → float → pointer reaction → individual button → party artwork. */
+/* Position → float → evade → individual action → 3D tilt → party artwork. */
+.hero__tilt {
+  display: block;
+  /* The button retains a stable hit area while its artwork tilts. */
+  pointer-events: none;
+}
+
+.hero__object[data-bean-tilt='true'] .hero__tilt {
+  transform: perspective(var(--bean-tilt-perspective, 850px))
+    rotateX(var(--bean-tilt-x, 0deg)) rotateY(var(--bean-tilt-y, 0deg));
+}
+
 .hero__party {
   display: block;
 }
@@ -313,6 +325,7 @@
 @media (prefers-reduced-motion: reduce) {
   .hero__float,
   .hero__reaction,
+  .hero__object[data-bean-tilt='true'] .hero__tilt,
   .hero__object .hero__bean-button,
   .hero__object[data-spinning='true'] .hero__bean-button,
   .hero__object .hero__party,
@@ -322,6 +335,12 @@
   }
 
   .hero__party-label { display: none; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hero__object[data-bean-tilt='true'] .hero__tilt {
+    transform: none;
+  }
 }
 
 .hero__copy {

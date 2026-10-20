@@ -1,5 +1,12 @@
 // Each effect can be disabled independently without changing project data.
 export const portfolioEffects = {
+  beanTilt: {
+    enabled: true,
+    maxRotateX: 12,
+    maxRotateY: 12,
+    perspective: 850,
+    smoothing: 0.14,
+  },
   globalAtmosphere: {
     enabled: true,
     strokeCount: 56,
