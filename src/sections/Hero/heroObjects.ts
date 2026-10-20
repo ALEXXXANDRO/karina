@@ -1,7 +1,8 @@
 type HeroObjectStatus = 'ready' | 'manual-review';
 
-interface HeroObject {
+export interface HeroObject {
   readonly id: string;
+  readonly label: string;
   readonly nodeId: string;
   readonly file: string;
   readonly status: HeroObjectStatus;
@@ -27,6 +28,7 @@ export const heroReferenceSize = { width: 1920, height: 1080 } as const;
 export const heroObjects = [
   {
     id: 'blue-bottom-left',
+    label: 'blue bottom-left',
     nodeId: '141:12810',
     file: 'bob19mini.png',
     status: 'ready',
@@ -35,6 +37,7 @@ export const heroObjects = [
   },
   {
     id: 'blue-top',
+    label: 'blue top',
     nodeId: '141:12811',
     file: 'bob12mini.png',
     status: 'ready',
@@ -43,6 +46,7 @@ export const heroObjects = [
   },
   {
     id: 'blue-bottom-right',
+    label: 'blue bottom-right',
     nodeId: '141:12812',
     file: 'bob16mini.png',
     status: 'ready',
@@ -51,6 +55,7 @@ export const heroObjects = [
   },
   {
     id: 'purple-spiked-left',
+    label: 'purple spiked left',
     nodeId: '141:12813',
     file: 'bob20.png',
     status: 'ready',
@@ -59,6 +64,7 @@ export const heroObjects = [
   },
   {
     id: 'yellow-spiked-bottom',
+    label: 'yellow spiked bottom',
     nodeId: '141:12816',
     file: 'bob17.png',
     status: 'ready',
@@ -67,6 +73,7 @@ export const heroObjects = [
   },
   {
     id: 'yellow-top-left',
+    label: 'yellow top-left',
     nodeId: '141:12820',
     file: 'bob23.png',
     status: 'ready',
@@ -75,6 +82,7 @@ export const heroObjects = [
   },
   {
     id: 'yellow-bottom-left',
+    label: 'yellow bottom-left',
     nodeId: '141:12823',
     file: 'bob19.png',
     status: 'ready',
@@ -83,6 +91,7 @@ export const heroObjects = [
   },
   {
     id: 'yellow-top-right',
+    label: 'yellow top-right',
     nodeId: '141:12826',
     file: 'bob13mini.png',
     status: 'ready',
@@ -91,6 +100,7 @@ export const heroObjects = [
   },
   {
     id: 'purple-top-left',
+    label: 'purple top-left',
     nodeId: '141:12829',
     file: 'bob22.png',
     status: 'ready',
@@ -99,6 +109,7 @@ export const heroObjects = [
   },
   {
     id: 'purple-bottom',
+    label: 'purple bottom',
     nodeId: '141:12832',
     file: 'bob18.png',
     status: 'ready',
@@ -107,6 +118,7 @@ export const heroObjects = [
   },
   {
     id: 'green-spiked-top-right',
+    label: 'green spiked top-right',
     nodeId: '141:12835',
     file: 'bob13.png',
     status: 'ready',
@@ -115,6 +127,7 @@ export const heroObjects = [
   },
   {
     id: 'orange-spiked-right',
+    label: 'orange spiked right',
     nodeId: '141:12836',
     file: 'bob16.png',
     status: 'ready',
@@ -123,6 +136,7 @@ export const heroObjects = [
   },
   {
     id: 'orange-spiked-top',
+    label: 'orange spiked top',
     nodeId: '141:12840',
     file: 'hero-13-orange-spiked-top.png',
     // bob12.png includes unrelated pixels and has the wrong orientation.

@@ -2,6 +2,8 @@
   /* Intensity: 0 restores the base pose. Larger duration scales slow motion. */
   --hero-motion-intensity: 1;
   --hero-motion-duration-scale: 1;
+  --hero-jump-height: 40px;
+  --hero-tumble-duration: 800ms;
 
   display: grid;
   min-height: 100svh;
@@ -41,11 +43,96 @@
   width: var(--object-width);
   height: auto;
   aspect-ratio: var(--object-ratio);
-  object-fit: contain;
+}
+
+.hero__float,
+.hero__reaction,
+.hero__bean-button {
+  width: 100%;
+  height: 100%;
   transform-origin: center;
+}
+
+.hero__float {
   animation: hero-bean-float
     calc(var(--float-duration) * var(--hero-motion-duration-scale))
     ease-in-out var(--float-delay) infinite;
+}
+
+.hero__reaction {
+  transform: translate(var(--evade-x, 0px), var(--evade-y, 0px))
+    rotate(var(--evade-tilt, 0deg));
+}
+
+.hero__bean-button {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: auto;
+}
+
+.hero__bean-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.hero__bean-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.hero__object[data-spinning='true'] .hero__float {
+  animation-play-state: paused;
+}
+
+.hero__object[data-spinning='true'] .hero__bean-button {
+  animation: hero-bean-tumble var(--hero-tumble-duration) both;
+}
+
+@keyframes hero-bean-tumble {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    animation-timing-function: ease-out;
+  }
+
+  12% {
+    transform: translateY(4px) rotate(-5deg) scale(1.06, 0.9);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  38% {
+    transform: translateY(calc(var(--hero-jump-height) * -1))
+      rotate(-135deg) scale(0.97, 1.05);
+    animation-timing-function: ease-in;
+  }
+
+  68% {
+    transform: translateY(calc(var(--hero-jump-height) * -0.55))
+      rotate(-300deg) scale(1.02, 0.98);
+    animation-timing-function: ease-in;
+  }
+
+  82% {
+    transform: translateY(0) rotate(-360deg) scale(1.12, 0.88);
+    animation-timing-function: ease-out;
+  }
+
+  92% {
+    transform: translateY(-3px) rotate(-360deg) scale(0.97, 1.04);
+    animation-timing-function: ease-in-out;
+  }
+
+  100% {
+    transform: translateY(0) rotate(-360deg) scale(1);
+  }
 }
 
 .hero__object:nth-child(1) {
@@ -163,7 +250,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero__object {
+  .hero__float,
+  .hero__reaction,
+  .hero__object .hero__bean-button,
+  .hero__object[data-spinning='true'] .hero__bean-button {
     animation: none;
     transform: none;
   }
