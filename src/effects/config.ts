@@ -1,5 +1,21 @@
 // Each effect can be disabled independently without changing project data.
 export const portfolioEffects = {
+  cursorTrail: {
+    enabled: true,
+    maxParticles: 35,
+    minLifetimeMs: 400,
+    maxLifetimeMs: 800,
+    minSize: 2,
+    maxSize: 7,
+    spawnSpacing: 12,
+    spread: 15,
+    spawnIntervalMs: 32,
+    maxSpawnPerMove: 3,
+    maxDpr: 2,
+    opacity: 0.8,
+    glowBlur: 6,
+    colors: ['#FF84B9', '#FFDF50', '#8CCEFF', '#B598FF', '#FFAE70'],
+  },
   traveler: {
     enabled: false,
     size: 150,

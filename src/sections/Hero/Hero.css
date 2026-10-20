@@ -1,4 +1,5 @@
 .hero {
+  position: relative;
   /* Intensity: 0 restores the base pose. Larger duration scales slow motion. */
   --hero-motion-intensity: 1;
   --hero-motion-duration-scale: 1;
